@@ -19,4 +19,5 @@ export interface AuthUserContext {
   profile: Profile | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  refreshProfile: () => Promise<void>;
 }
