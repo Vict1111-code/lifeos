@@ -1,5 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from '../components/layout/AppShell'
+import { ProtectedRoute } from './ProtectedRoute'
+import { LoginPage } from '../features/auth/LoginPage'
+import { SignupPage } from '../features/auth/SignupPage'
 
 const pages = {
   Home: 'LifeOS home dashboard',
@@ -30,19 +33,23 @@ function Page({ name }: { name: keyof typeof pages }) {
 export function App() {
   return (
     <BrowserRouter>
-      <AppShell>
-        <Routes>
-          <Route path="/" element={<Page name="Home" />} />
-          <Route path="/today" element={<Page name="Today" />} />
-          <Route path="/goals" element={<Page name="Goals" />} />
-          <Route path="/tasks" element={<Page name="Tasks" />} />
-          <Route path="/focus" element={<Page name="Focus" />} />
-          <Route path="/journal" element={<Page name="Journal" />} />
-          <Route path="/progress" element={<Page name="Progress" />} />
-          <Route path="/settings" element={<Page name="Settings" />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AppShell>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AppShell />}>
+            <Route path="/" element={<Page name="Home" />} />
+            <Route path="/today" element={<Page name="Today" />} />
+            <Route path="/goals" element={<Page name="Goals" />} />
+            <Route path="/tasks" element={<Page name="Tasks" />} />
+            <Route path="/focus" element={<Page name="Focus" />} />
+            <Route path="/journal" element={<Page name="Journal" />} />
+            <Route path="/progress" element={<Page name="Progress" />} />
+            <Route path="/settings" element={<Page name="Settings" />} />
+          </Route>
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </BrowserRouter>
   )
 }
