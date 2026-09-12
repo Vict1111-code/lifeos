@@ -3,6 +3,7 @@ import { AppShell } from '../components/layout/AppShell'
 import { ProtectedRoute } from './ProtectedRoute'
 import { LoginPage } from '../features/auth/LoginPage'
 import { SignupPage } from '../features/auth/SignupPage'
+import { OnboardingPage } from '../features/onboarding/OnboardingPage'
 
 const pages = {
   Home: 'LifeOS home dashboard',
@@ -37,6 +38,7 @@ export function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route element={<ProtectedRoute />}>
+          <Route path="/onboarding" element={<OnboardingPage />} />
           <Route element={<AppShell />}>
             <Route path="/" element={<Page name="Home" />} />
             <Route path="/today" element={<Page name="Today" />} />
