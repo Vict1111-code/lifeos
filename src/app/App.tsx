@@ -12,8 +12,13 @@ import { FocusPage } from '../features/focus/FocusPage'
 import { JournalPage } from '../features/journal/JournalPage'
 import { ProgressPage } from '../features/progress/ProgressPage'
 import { EvidencePage } from '../features/evidence/EvidencePage'
+import { AIMemoryPanel } from '../features/ai-memory/AIMemoryPanel'
 
-const pages = { Settings: 'System settings' }
-function Page({ name }: { name: keyof typeof pages }) { return <section className="mx-auto max-w-6xl px-6 py-8 lg:px-10"><div className="mb-8"><p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">LifeOS</p><h1 className="text-3xl font-semibold tracking-tight text-[var(--text)]">{name}</h1><p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">{pages[name]}</p></div><div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 shadow-sm"><p className="text-sm text-[var(--muted)]">This workspace is ready for the next feature module.</p></div></section> }
+export function SettingsPage() {
+  return <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
+    <div className="mb-6"><p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">LifeOS</p><h1 className="text-3xl font-semibold tracking-tight text-[var(--text)]">Settings</h1><p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">Control how LifeOS learns from your interactions and personalizes the AI assistant.</p></div>
+    <AIMemoryPanel />
+  </section>
+}
 
-export function App() { return <BrowserRouter><Routes><Route path="/login" element={<LoginPage />} /><Route path="/signup" element={<SignupPage />} /><Route element={<ProtectedRoute />}><Route path="/onboarding" element={<OnboardingPage />} /><Route element={<AppShell />}><Route path="/" element={<HomeDashboard />} /><Route path="/today" element={<HomeDashboard mode="today" />} /><Route path="/life-areas" element={<LifeAreasPage />} /><Route path="/goals" element={<GoalsPage />} /><Route path="/tasks" element={<TasksPage />} /><Route path="/focus" element={<FocusPage />} /><Route path="/journal" element={<JournalPage />} /><Route path="/progress" element={<ProgressPage />} /><Route path="/evidence" element={<EvidencePage />} /><Route path="/settings" element={<Page name="Settings" />} /></Route></Route><Route path="*" element={<Navigate to="/" replace />} /></Routes></BrowserRouter> }
+export function App() { return <BrowserRouter><Routes><Route path="/login" element={<LoginPage />} /><Route path="/signup" element={<SignupPage />} /><Route element={<ProtectedRoute />}><Route path="/onboarding" element={<OnboardingPage />} /><Route element={<AppShell />}><Route path="/" element={<HomeDashboard />} /><Route path="/today" element={<HomeDashboard mode="today" />} /><Route path="/life-areas" element={<LifeAreasPage />} /><Route path="/goals" element={<GoalsPage />} /><Route path="/tasks" element={<TasksPage />} /><Route path="/focus" element={<FocusPage />} /><Route path="/journal" element={<JournalPage />} /><Route path="/progress" element={<ProgressPage />} /><Route path="/evidence" element={<EvidencePage />} /><Route path="/settings" element={<SettingsPage />} /></Route></Route><Route path="*" element={<Navigate to="/" replace />} /></Routes></BrowserRouter> }
