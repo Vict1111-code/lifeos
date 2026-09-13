@@ -5,10 +5,10 @@ import { LoginPage } from '../features/auth/LoginPage'
 import { SignupPage } from '../features/auth/SignupPage'
 import { OnboardingPage } from '../features/onboarding/OnboardingPage'
 import { HomeDashboard } from '../features/dashboard/HomeDashboard'
+import { TasksPage } from '../features/tasks/TasksPage'
 
 const pages = {
   Goals: 'Goals and milestones',
-  Tasks: 'Tasks and execution',
   Focus: 'Focus sessions',
   Journal: 'Journal and reflection',
   Progress: 'Progress and evidence',
@@ -42,7 +42,7 @@ export function App() {
             <Route path="/" element={<HomeDashboard />} />
             <Route path="/today" element={<HomeDashboard mode="today" />} />
             <Route path="/goals" element={<Page name="Goals" />} />
-            <Route path="/tasks" element={<Page name="Tasks" />} />
+            <Route path="/tasks" element={<TasksPage />} />
             <Route path="/focus" element={<Page name="Focus" />} />
             <Route path="/journal" element={<Page name="Journal" />} />
             <Route path="/progress" element={<Page name="Progress" />} />
