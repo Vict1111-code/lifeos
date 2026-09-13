@@ -1,183 +1,34 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  ArrowRight,
-  CalendarClock,
-  Check,
-  CheckCircle2,
-  CircleAlert,
-  Clock3,
-  Flame,
-  ListTodo,
-  RefreshCw,
-  Target,
-  TrendingUp,
-  Zap,
+  ArrowRight, CalendarClock, Check, CheckCircle2, CircleAlert, Clock3, Flame, ListTodo, RefreshCw, Target, TrendingUp, Zap,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../lib/auth/AuthProvider'
 import { getHomeDashboard } from './dashboardApi'
 import { AIContextPreview } from '../ai-context/AIContextPreview'
+import { AIActionCenter } from '../ai-actions/AIActionCenter'
 import type { DashboardTask, HomeDashboard } from './types'
 
-function formatMinutes(minutes: number) {
-  if (minutes < 60) return `${minutes}m`
-  const hours = Math.floor(minutes / 60)
-  const remainder = minutes % 60
-  return remainder ? `${hours}h ${remainder}m` : `${hours}h`
-}
-
-function formatDate(value: string, timezone: string) {
-  return new Intl.DateTimeFormat(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    timeZone: timezone,
-  }).format(new Date(`${value}T12:00:00`))
-}
-
-function formatTime(value: string | null, timezone: string) {
-  if (!value) return null
-  return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', timeZone: timezone }).format(new Date(value))
-}
-
-function priorityLabel(priority: string) {
-  return priority.charAt(0).toUpperCase() + priority.slice(1)
-}
-
-function priorityClass(priority: string) {
-  if (priority === 'urgent') return 'bg-red-500/10 text-red-300'
-  if (priority === 'high') return 'bg-orange-500/10 text-orange-300'
-  if (priority === 'medium') return 'bg-yellow-500/10 text-yellow-300'
-  return 'bg-[var(--surface-2)] text-[var(--muted)]'
-}
-
-function StatCard({ icon: Icon, label, value, detail }: { icon: typeof Clock3; label: string; value: string; detail: string }) {
-  return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <span className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)]"><Icon size={18} /></span>
-        <span className="text-xs text-[var(--muted)]">{label}</span>
-      </div>
-      <p className="text-2xl font-semibold tracking-tight">{value}</p>
-      <p className="mt-1 text-xs text-[var(--muted)]">{detail}</p>
-    </div>
-  )
-}
-
-function TaskRow({ task, timezone }: { task: DashboardTask; timezone: string }) {
-  const time = formatTime(task.start_at ?? task.due_at, timezone)
-  return (
-    <div className="flex items-start gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/50 p-3">
-      <span className={`mt-0.5 rounded-lg px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${priorityClass(task.priority)}`}>
-        {priorityLabel(task.priority)}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{task.title}</p>
-        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--muted)]">
-          {time && <span className="inline-flex items-center gap-1"><Clock3 size={12} />{time}</span>}
-          {task.life_area_name && <span>{task.life_area_name}</span>}
-          {task.goal_title && <span>{task.goal_title}</span>}
-        </div>
-      </div>
-      <span className="mt-1 text-[var(--muted)]"><CircleAlert size={16} /></span>
-    </div>
-  )
-}
+function formatMinutes(minutes: number) { if (minutes < 60) return `${minutes}m`; const hours = Math.floor(minutes / 60); const remainder = minutes % 60; return remainder ? `${hours}h ${remainder}m` : `${hours}h` }
+function formatDate(value: string, timezone: string) { return new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric', timeZone: timezone }).format(new Date(`${value}T12:00:00`)) }
+function formatTime(value: string | null, timezone: string) { if (!value) return null; return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', timeZone: timezone }).format(new Date(value)) }
+function priorityLabel(priority: string) { return priority.charAt(0).toUpperCase() + priority.slice(1) }
+function priorityClass(priority: string) { if (priority === 'urgent') return 'bg-red-500/10 text-red-300'; if (priority === 'high') return 'bg-orange-500/10 text-orange-300'; if (priority === 'medium') return 'bg-yellow-500/10 text-yellow-300'; return 'bg-[var(--surface-2)] text-[var(--muted)]' }
+function StatCard({ icon: Icon, label, value, detail }: { icon: typeof Clock3; label: string; value: string; detail: string }) { return <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm"><div className="mb-4 flex items-center justify-between"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)]"><Icon size={18} /></span><span className="text-xs text-[var(--muted)]">{label}</span></div><p className="text-2xl font-semibold tracking-tight">{value}</p><p className="mt-1 text-xs text-[var(--muted)]">{detail}</p></div> }
+function TaskRow({ task, timezone }: { task: DashboardTask; timezone: string }) { const time = formatTime(task.start_at ?? task.due_at, timezone); return <div className="flex items-start gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/50 p-3"><span className={`mt-0.5 rounded-lg px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${priorityClass(task.priority)}`}>{priorityLabel(task.priority)}</span><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{task.title}</p><div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--muted)]">{time && <span className="inline-flex items-center gap-1"><Clock3 size={12} />{time}</span>}{task.life_area_name && <span>{task.life_area_name}</span>}{task.goal_title && <span>{task.goal_title}</span>}</div></div><span className="mt-1 text-[var(--muted)]"><CircleAlert size={16} /></span></div> }
 
 export function HomeDashboard({ mode = 'home' }: { mode?: 'home' | 'today' }) {
-  const { profile } = useAuth()
-  const [dashboard, setDashboard] = useState<HomeDashboard | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const loadDashboard = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      setDashboard(await getHomeDashboard())
-    } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : 'Unable to load your dashboard.')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
+  const { profile } = useAuth(); const [dashboard, setDashboard] = useState<HomeDashboard | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState<string | null>(null)
+  const loadDashboard = useCallback(async () => { setLoading(true); setError(null); try { setDashboard(await getHomeDashboard()) } catch (loadError) { setError(loadError instanceof Error ? loadError.message : 'Unable to load your dashboard.') } finally { setLoading(false) } }, [])
   useEffect(() => { void loadDashboard() }, [loadDashboard])
-
-  const greeting = useMemo(() => {
-    const firstName = dashboard?.profile.first_name ?? profile?.first_name ?? dashboard?.profile.display_name?.split(' ')[0]
-    return firstName ? `Good ${new Intl.DateTimeFormat(undefined, { hour: 'numeric' }).format(new Date()).includes('AM') ? 'morning' : 'day'}, ${firstName}.` : 'Welcome back.'
-  }, [dashboard?.profile, profile?.first_name])
-
-  if (loading && !dashboard) {
-    return <section className="mx-auto max-w-7xl px-5 py-8 lg:px-10"><div className="animate-pulse space-y-5"><div className="h-8 w-64 rounded bg-[var(--surface)]" /><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{[1,2,3,4].map((item) => <div key={item} className="h-32 rounded-2xl bg-[var(--surface)]" />)}</div><div className="grid gap-5 lg:grid-cols-[1.35fr_0.65fr]"><div className="h-80 rounded-2xl bg-[var(--surface)]" /><div className="h-80 rounded-2xl bg-[var(--surface)]" /></div></div></section>
-  }
-
-  if (error && !dashboard) {
-    return <section className="mx-auto max-w-3xl px-5 py-12 lg:px-10"><div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6"><div className="flex items-start gap-3"><CircleAlert className="mt-0.5 text-red-300" size={20} /><div><h1 className="font-semibold">Dashboard unavailable</h1><p className="mt-1 text-sm text-[var(--muted)]">{error}</p><button onClick={() => void loadDashboard()} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white"><RefreshCw size={15} />Try again</button></div></div></div></section>
-  }
-
+  const greeting = useMemo(() => { const firstName = dashboard?.profile.first_name ?? profile?.first_name ?? dashboard?.profile.display_name?.split(' ')[0]; return firstName ? `Good ${new Intl.DateTimeFormat(undefined, { hour: 'numeric' }).format(new Date()).includes('AM') ? 'morning' : 'day'}, ${firstName}.` : 'Welcome back.' }, [dashboard?.profile, profile?.first_name])
+  if (loading && !dashboard) return <section className="mx-auto max-w-7xl px-5 py-8 lg:px-10"><div className="animate-pulse space-y-5"><div className="h-8 w-64 rounded bg-[var(--surface)]" /><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{[1,2,3,4].map((item) => <div key={item} className="h-32 rounded-2xl bg-[var(--surface)]" />)}</div><div className="grid gap-5 lg:grid-cols-[1.35fr_0.65fr]"><div className="h-80 rounded-2xl bg-[var(--surface)]" /><div className="h-80 rounded-2xl bg-[var(--surface)]" /></div></div></section>
+  if (error && !dashboard) return <section className="mx-auto max-w-3xl px-5 py-12 lg:px-10"><div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6"><div className="flex items-start gap-3"><CircleAlert className="mt-0.5 text-red-300" size={20} /><div><h1 className="font-semibold">Dashboard unavailable</h1><p className="mt-1 text-sm text-[var(--muted)]">{error}</p><button onClick={() => void loadDashboard()} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white"><RefreshCw size={15} />Try again</button></div></div></div></section>
   if (!dashboard) return null
-
-  const completed = dashboard.tasks.completed_today
-  const total = dashboard.tasks.total_today
-  const habitTotal = dashboard.habits.total
-  const habitCompleted = dashboard.habits.completed
-  const tasks = mode === 'today' ? dashboard.tasks.today : dashboard.tasks.today.slice(0, 5)
-
-  return (
-    <section className="mx-auto max-w-7xl px-5 py-8 lg:px-10">
-      <header className="mb-7 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">{mode === 'today' ? 'Today' : 'Command center'}</p>
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{greeting}</h1>
-          <p className="mt-2 text-sm text-[var(--muted)]">{formatDate(dashboard.date, dashboard.timezone)} · {dashboard.timezone}</p>
-        </div>
-        <button onClick={() => void loadDashboard()} disabled={loading} className="inline-flex w-fit items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-medium hover:bg-[var(--surface-2)] disabled:opacity-50"><RefreshCw size={15} className={loading ? 'animate-spin' : ''} />Refresh</button>
-      </header>
-
-      {error && <div className="mb-5 rounded-xl border border-yellow-500/20 bg-yellow-500/5 px-4 py-3 text-sm text-yellow-200">Showing your last successful dashboard snapshot. {error}</div>}
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={ListTodo} label="Tasks" value={`${completed}/${total}`} detail={`${dashboard.tasks.completion_rate}% completed today`} />
-        <StatCard icon={Flame} label="Habits" value={`${habitCompleted}/${habitTotal}`} detail={`${dashboard.habits.completion_rate}% completed today`} />
-        <StatCard icon={Clock3} label="Focus" value={formatMinutes(dashboard.focus.today_minutes)} detail={`${formatMinutes(dashboard.focus.week_minutes)} this week`} />
-        <StatCard icon={Target} label="Goals" value={`${Math.round(dashboard.goals.average_progress)}%`} detail={`${dashboard.goals.count} active goals`} />
-      </div>
-
-      <div className="mt-5 grid gap-5 lg:grid-cols-[1.35fr_0.65fr]">
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
-          <div className="mb-5 flex items-center justify-between gap-4">
-            <div><h2 className="font-semibold">{mode === 'today' ? "Today's execution" : 'Today at a glance'}</h2><p className="mt-1 text-xs text-[var(--muted)]">Your highest-leverage actions, ordered by priority.</p></div>
-            {mode === 'home' && <Link to="/today" className="inline-flex items-center gap-1 text-xs font-medium text-[var(--accent)]">View all <ArrowRight size={13} /></Link>}
-          </div>
-          {tasks.length ? <div className="space-y-2.5">{tasks.map((task) => <TaskRow key={task.id} task={task} timezone={dashboard.timezone} />)}</div> : <div className="rounded-xl border border-dashed border-[var(--border)] p-8 text-center"><CheckCircle2 className="mx-auto text-emerald-300" size={26} /><p className="mt-3 text-sm font-medium">Nothing urgent on your list.</p><p className="mt-1 text-xs text-[var(--muted)]">Use the space to make progress on something meaningful.</p></div>}
-        </div>
-
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
-          <div className="mb-5 flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)]"><Zap size={18} /></span><div><h2 className="font-semibold">Next best action</h2><p className="text-xs text-[var(--muted)]">Start here if you need direction.</p></div></div>
-          {dashboard.next_best_action ? <><p className="text-lg font-semibold leading-snug">{dashboard.next_best_action.title}</p>{dashboard.next_best_action.description && <p className="mt-2 text-sm text-[var(--muted)]">{dashboard.next_best_action.description}</p>}<div className="mt-5 flex flex-wrap gap-2 text-xs"><span className={`rounded-lg px-2 py-1 ${priorityClass(dashboard.next_best_action.priority)}`}>{priorityLabel(dashboard.next_best_action.priority)} priority</span>{dashboard.next_best_action.estimated_minutes && <span className="rounded-lg bg-[var(--surface-2)] px-2 py-1 text-[var(--muted)]">~{dashboard.next_best_action.estimated_minutes} min</span>}</div></> : <p className="text-sm text-[var(--muted)]">No next action has been selected yet.</p>}
-        </div>
-      </div>
-
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
-          <div className="mb-5 flex items-center justify-between"><div><h2 className="font-semibold">Active goals</h2><p className="mt-1 text-xs text-[var(--muted)]">Keep today's work connected to the bigger picture.</p></div><TrendingUp size={18} className="text-[var(--accent)]" /></div>
-          {dashboard.goals.active.length ? <div className="space-y-4">{dashboard.goals.active.slice(0, 4).map((goal) => <div key={goal.id}><div className="mb-2 flex items-center justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-medium">{goal.title}</p><p className="mt-0.5 text-xs text-[var(--muted)]">{goal.life_area_name ?? 'General'}</p></div><span className="text-xs font-semibold">{Math.round(goal.progress)}%</span></div><div className="h-2 overflow-hidden rounded-full bg-[var(--surface-2)]"><div className="h-full rounded-full bg-[var(--accent)] transition-all" style={{ width: `${Math.min(100, Math.max(0, goal.progress))}%` }} /></div></div>)}</div> : <p className="text-sm text-[var(--muted)]">No active goals yet.</p>}
-        </div>
-
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
-          <div className="mb-5 flex items-center justify-between"><div><h2 className="font-semibold">Life pulse</h2><p className="mt-1 text-xs text-[var(--muted)]">A quick view of your active life areas.</p></div><CalendarClock size={18} className="text-[var(--accent)]" /></div>
-          {dashboard.life_pulse.length ? <div className="space-y-3">{dashboard.life_pulse.map((area) => <div key={area.id} className="flex items-center gap-3"><div className="min-w-0 flex-1"><div className="mb-1 flex justify-between gap-3 text-xs"><span className="truncate font-medium">{area.name}</span><span className="text-[var(--muted)]">{Math.round(area.score)}%</span></div><div className="h-1.5 rounded-full bg-[var(--surface-2)]"><div className="h-full rounded-full bg-[var(--accent)]" style={{ width: `${Math.min(100, Math.max(0, area.score))}%` }} /></div></div><span className="text-[10px] text-[var(--muted)]">{area.active_goals} goals</span></div>)}</div> : <p className="text-sm text-[var(--muted)]">Add life areas during onboarding to see your pulse.</p>}
-        </div>
-      </div>
-
-      <AIContextPreview />
-
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-5 py-4 text-xs text-[var(--muted)]">
-        <span>LifeOS uses your profile timezone to determine what counts as today.</span>
-        <span className="inline-flex items-center gap-1"><Check size={13} className="text-emerald-300" /> Synced with Supabase</span>
-      </div>
-    </section>
-  )
+  const completed = dashboard.tasks.completed_today; const total = dashboard.tasks.total_today; const habitTotal = dashboard.habits.total; const habitCompleted = dashboard.habits.completed; const tasks = mode === 'today' ? dashboard.tasks.today : dashboard.tasks.today.slice(0, 5)
+  return <section className="mx-auto max-w-7xl px-5 py-8 lg:px-10"><header className="mb-7 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">{mode === 'today' ? 'Today' : 'Command center'}</p><h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{greeting}</h1><p className="mt-2 text-sm text-[var(--muted)]">{formatDate(dashboard.date, dashboard.timezone)} · {dashboard.timezone}</p></div><button onClick={() => void loadDashboard()} disabled={loading} className="inline-flex w-fit items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-medium hover:bg-[var(--surface-2)] disabled:opacity-50"><RefreshCw size={15} className={loading ? 'animate-spin' : ''} />Refresh</button></header>{error && <div className="mb-5 rounded-xl border border-yellow-500/20 bg-yellow-500/5 px-4 py-3 text-sm text-yellow-200">Showing your last successful dashboard snapshot. {error}</div>}
+  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><StatCard icon={ListTodo} label="Tasks" value={`${completed}/${total}`} detail={`${dashboard.tasks.completion_rate}% completed today`} /><StatCard icon={Flame} label="Habits" value={`${habitCompleted}/${habitTotal}`} detail={`${dashboard.habits.completion_rate}% completed today`} /><StatCard icon={Clock3} label="Focus" value={formatMinutes(dashboard.focus.today_minutes)} detail={`${formatMinutes(dashboard.focus.week_minutes)} this week`} /><StatCard icon={Target} label="Goals" value={`${Math.round(dashboard.goals.average_progress)}%`} detail={`${dashboard.goals.count} active goals`} /></div>
+  <div className="mt-5 grid gap-5 lg:grid-cols-[1.35fr_0.65fr]"><div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm"><div className="mb-5 flex items-center justify-between gap-4"><div><h2 className="font-semibold">{mode === 'today' ? "Today's execution" : 'Today at a glance'}</h2><p className="mt-1 text-xs text-[var(--muted)]">Your highest-leverage actions, ordered by priority.</p></div>{mode === 'home' && <Link to="/today" className="inline-flex items-center gap-1 text-xs font-medium text-[var(--accent)]">View all <ArrowRight size={13} /></Link>}</div>{tasks.length ? <div className="space-y-2.5">{tasks.map((task) => <TaskRow key={task.id} task={task} timezone={dashboard.timezone} />)}</div> : <div className="rounded-xl border border-dashed border-[var(--border)] p-8 text-center"><CheckCircle2 className="mx-auto text-emerald-300" size={26} /><p className="mt-3 text-sm font-medium">Nothing urgent on your list.</p><p className="mt-1 text-xs text-[var(--muted)]">Use the space to make progress on something meaningful.</p></div>}</div><div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm"><div className="mb-5 flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)]"><Zap size={18} /></span><div><h2 className="font-semibold">Next best action</h2><p className="text-xs text-[var(--muted)]">Start here if you need direction.</p></div></div>{dashboard.next_best_action ? <><p className="text-lg font-semibold leading-snug">{dashboard.next_best_action.title}</p>{dashboard.next_best_action.description && <p className="mt-2 text-sm text-[var(--muted)]">{dashboard.next_best_action.description}</p>}<div className="mt-5 flex flex-wrap gap-2 text-xs"><span className={`rounded-lg px-2 py-1 ${priorityClass(dashboard.next_best_action.priority)}`}>{priorityLabel(dashboard.next_best_action.priority)} priority</span>{dashboard.next_best_action.estimated_minutes && <span className="rounded-lg bg-[var(--surface-2)] px-2 py-1 text-[var(--muted)]">~{dashboard.next_best_action.estimated_minutes} min</span>}</div></> : <p className="text-sm text-[var(--muted)]">No next action has been selected yet.</p>}</div></div>
+  <div className="mt-5 grid gap-5 lg:grid-cols-2"><div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm"><div className="mb-5 flex items-center justify-between"><div><h2 className="font-semibold">Active goals</h2><p className="mt-1 text-xs text-[var(--muted)]">Keep today's work connected to the bigger picture.</p></div><TrendingUp size={18} className="text-[var(--accent)]" /></div>{dashboard.goals.active.length ? <div className="space-y-4">{dashboard.goals.active.slice(0, 4).map((goal) => <div key={goal.id}><div className="mb-2 flex items-center justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-medium">{goal.title}</p><p className="mt-0.5 text-xs text-[var(--muted)]">{goal.life_area_name ?? 'General'}</p></div><span className="text-xs font-semibold">{Math.round(goal.progress)}%</span></div><div className="h-2 overflow-hidden rounded-full bg-[var(--surface-2)]"><div className="h-full rounded-full bg-[var(--accent)] transition-all" style={{ width: `${Math.min(100, Math.max(0, goal.progress))}%` }} /></div></div>)}</div> : <p className="text-sm text-[var(--muted)]">No active goals yet.</p>}</div><div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm"><div className="mb-5 flex items-center justify-between"><div><h2 className="font-semibold">Life pulse</h2><p className="mt-1 text-xs text-[var(--muted)]">A quick view of your active life areas.</p></div><CalendarClock size={18} className="text-[var(--accent)]" /></div>{dashboard.life_pulse.length ? <div className="space-y-3">{dashboard.life_pulse.map((area) => <div key={area.id} className="flex items-center gap-3"><div className="min-w-0 flex-1"><div className="mb-1 flex justify-between gap-3 text-xs"><span className="truncate font-medium">{area.name}</span><span className="text-[var(--muted)]">{Math.round(area.score)}%</span></div><div className="h-1.5 rounded-full bg-[var(--surface-2)]"><div className="h-full rounded-full bg-[var(--accent)]" style={{ width: `${Math.min(100, Math.max(0, area.score))}%` }} /></div></div><span className="text-[10px] text-[var(--muted)]">{area.active_goals} goals</span></div>)}</div> : <p className="text-sm text-[var(--muted)]">Add life areas during onboarding to see your pulse.</p>}</div></div>
+  <div className="mt-5"><AIActionCenter /></div><div className="mt-5"><AIContextPreview /></div><div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-5 py-4 text-xs text-[var(--muted)]"><span>LifeOS uses your profile timezone to determine what counts as today.</span><span className="inline-flex items-center gap-1"><Check size={13} className="text-emerald-300" /> Synced with Supabase</span></div></section>
 }
