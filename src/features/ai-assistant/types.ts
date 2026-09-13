@@ -43,6 +43,19 @@ export interface ProposedAgentAction {
   validation?: Record<string, unknown>
 }
 
+export interface MemoryRetrievalMeta {
+  mode: 'semantic_ranked' | 'ranked_fallback' | string
+  query_embedded: boolean
+  count: number
+}
+
+export interface RetrievedMemory {
+  id: string
+  memory_type: string
+  retrieval_score: number
+  semantic_similarity: number
+}
+
 export interface AssistantChatResult {
   provider: 'openai' | 'anthropic'
   model: string
@@ -50,4 +63,6 @@ export interface AssistantChatResult {
   message: string
   tool_calls?: AgentToolCall[]
   proposed_actions?: ProposedAgentAction[]
+  memory_retrieval?: MemoryRetrievalMeta
+  memories_used?: RetrievedMemory[]
 }
