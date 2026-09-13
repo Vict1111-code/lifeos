@@ -8,9 +8,9 @@ import { HomeDashboard } from '../features/dashboard/HomeDashboard'
 import { TasksPage } from '../features/tasks/TasksPage'
 import { LifeAreasPage } from '../features/life-areas/LifeAreasPage'
 import { GoalsPage } from '../features/goals/GoalsPage'
+import { FocusPage } from '../features/focus/FocusPage'
 
 const pages = {
-  Focus: 'Focus sessions',
   Journal: 'Journal and reflection',
   Progress: 'Progress and evidence',
   Settings: 'System settings',
@@ -21,5 +21,5 @@ function Page({ name }: { name: keyof typeof pages }) {
 }
 
 export function App() {
-  return <BrowserRouter><Routes><Route path="/login" element={<LoginPage />} /><Route path="/signup" element={<SignupPage />} /><Route element={<ProtectedRoute />}><Route path="/onboarding" element={<OnboardingPage />} /><Route element={<AppShell />}><Route path="/" element={<HomeDashboard />} /><Route path="/today" element={<HomeDashboard mode="today" />} /><Route path="/life-areas" element={<LifeAreasPage />} /><Route path="/goals" element={<GoalsPage />} /><Route path="/tasks" element={<TasksPage />} /><Route path="/focus" element={<Page name="Focus" />} /><Route path="/journal" element={<Page name="Journal" />} /><Route path="/progress" element={<Page name="Progress" />} /><Route path="/settings" element={<Page name="Settings" />} /></Route></Route><Route path="*" element={<Navigate to="/" replace />} /></Routes></BrowserRouter>
+  return <BrowserRouter><Routes><Route path="/login" element={<LoginPage />} /><Route path="/signup" element={<SignupPage />} /><Route element={<ProtectedRoute />}><Route path="/onboarding" element={<OnboardingPage />} /><Route element={<AppShell />}><Route path="/" element={<HomeDashboard />} /><Route path="/today" element={<HomeDashboard mode="today" />} /><Route path="/life-areas" element={<LifeAreasPage />} /><Route path="/goals" element={<GoalsPage />} /><Route path="/tasks" element={<TasksPage />} /><Route path="/focus" element={<FocusPage />} /><Route path="/journal" element={<Page name="Journal" />} /><Route path="/progress" element={<Page name="Progress" />} /><Route path="/settings" element={<Page name="Settings" />} /></Route></Route><Route path="*" element={<Navigate to="/" replace />} /></Routes></BrowserRouter>
 }
