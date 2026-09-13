@@ -33,11 +33,19 @@ export async function sendPersistentMessage(conversationId: string, content: str
   const { data: historyData, error: historyError } = await supabase.rpc('get_ai_conversation_messages', { p_conversation_id: conversationId, p_limit: 20 })
   if (historyError) throw historyError
   const history = ((historyData ?? []) as AIMessage[]).filter(m => m.role === 'user' || m.role === 'assistant').map(m => ({ role: m.role, content: m.content }))
-  const { data, error } = await supabase.functions.invoke('ai-gateway', { body: { mode: 'chat', message: content, history, horizon } })
+  const { data, error } = await supabase.functions.invoke('ai-gateway', { body: { mode: 'agent', message: content, history, horizon, conversation_id: conversationId } })
   if (error) throw error
-  if (!data || typeof data !== 'object' || !('message' in data) || typeof data.message !== 'string') throw new Error('The AI assistant returned an invalid response.')
+  if (!data || typeof data !== 'object' || !('message' in data) || typeof data.message !== 'string') throw new Error('The AI agent returned an invalid response.')
   const result = data as AssistantChatResult
-  const { data: assistantMessage, error: assistantError } = await supabase.from('ai_messages').insert({ conversation_id: conversationId, user_id: userData.user.id, role: 'assistant', content: result.message, provider: result.provider, model: result.model, metadata: { generated_at: result.generated_at } }).select('*').single()
+  const { data: assistantMessage, error: assistantError } = await supabase.from('ai_messages').insert({
+    conversation_id: conversationId,
+    user_id: userData.user.id,
+    role: 'assistant',
+    content: result.message,
+    provider: result.provider,
+    model: result.model,
+    metadata: { generated_at: result.generated_at, tool_calls: result.tool_calls ?? [], proposed_actions: result.proposed_actions ?? [] },
+  }).select('*').single()
   if (assistantError) throw assistantError
   await supabase.rpc('touch_ai_conversation', { p_conversation_id: conversationId, p_title: content.slice(0, 80) })
   return { userMessage: userMessage as AIMessage, assistantMessage: assistantMessage as AIMessage, result }
