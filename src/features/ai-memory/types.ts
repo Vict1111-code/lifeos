@@ -13,6 +13,8 @@ export interface AIMemoryItem {
   status: 'active' | 'superseded' | 'archived' | 'rejected' | string
   last_confirmed_at: string | null
   expires_at: string | null
+  embedding_model: string | null
+  embedding_updated_at: string | null
   created_at: string
   updated_at: string
 }
