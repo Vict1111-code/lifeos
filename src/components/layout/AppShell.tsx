@@ -33,7 +33,7 @@ export function AppShell() {
         <div className="border-t border-[var(--border)] p-3"><Link to="/settings" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]"><Settings size={18} />{!collapsed && 'Settings'}</Link><button onClick={() => setCollapsed(value => !value)} className="mt-2 hidden w-full items-center justify-center rounded-xl border border-[var(--border)] p-2 text-[var(--muted)] hover:bg-[var(--surface-2)] lg:flex" aria-label="Toggle sidebar">{collapsed ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}</button></div>
       </aside>
       {mobileOpen && <button className="fixed inset-0 z-40 bg-black/40 lg:hidden" aria-label="Close navigation overlay" onClick={() => setMobileOpen(false)} />}
-      <main className={`${collapsed ? 'lg:pl-20' : 'lg:pl-64'} min-h-screen min-w-0 transition-[padding]`}><Outlet /></main>
+      <main className={`${collapsed ? 'lg:pl-20' : 'lg:pl-64'} min-h-screen min-w-0 pt-12 lg:pt-0 transition-[padding]`}><Outlet /></main>
       <AIAssistant />
     </div>
   )
