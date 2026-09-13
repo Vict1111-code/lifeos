@@ -27,9 +27,26 @@ export interface SendAssistantMessageInput {
   horizon?: 'today' | 'week'
 }
 
+export interface AgentToolCall {
+  name: string
+  arguments: Record<string, unknown>
+}
+
+export interface ProposedAgentAction {
+  action_type: string
+  title: string
+  description: string
+  payload: Record<string, unknown>
+  source_signals: string[]
+  confidence: number
+  validation?: Record<string, unknown>
+}
+
 export interface AssistantChatResult {
   provider: 'openai' | 'anthropic'
   model: string
   generated_at: string
   message: string
+  tool_calls?: AgentToolCall[]
+  proposed_actions?: ProposedAgentAction[]
 }
