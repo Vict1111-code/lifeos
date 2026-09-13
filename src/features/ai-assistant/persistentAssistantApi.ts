@@ -1,5 +1,7 @@
 import { supabase } from '../../lib/supabase/client'
-import type { AIConversation, AIMessage, AssistantChatResult } from './types'
+import { createAIActionProposal } from '../ai-actions/aiActionsApi'
+import type { AIActionType } from '../ai-actions/types'
+import type { AIConversation, AIMessage, AssistantChatResult, ProposedAgentAction } from './types'
 
 export async function listConversations(limit = 30): Promise<AIConversation[]> {
   if (!supabase) throw new Error('Supabase is not configured.')
@@ -24,6 +26,27 @@ export async function listMessages(conversationId: string, limit = 50): Promise<
   return (data ?? []) as AIMessage[]
 }
 
+function isProposedAction(value: ProposedAgentAction): boolean {
+  return typeof value.action_type === 'string' && typeof value.title === 'string' && typeof value.payload === 'object' && value.payload !== null
+}
+
+async function persistProposedActions(actions: ProposedAgentAction[]): Promise<ProposedAgentAction[]> {
+  const persisted: ProposedAgentAction[] = []
+  for (const action of actions) {
+    if (!isProposedAction(action)) continue
+    const proposal = await createAIActionProposal({
+      action_type: action.action_type as AIActionType,
+      title: action.title,
+      description: action.description,
+      payload: action.payload,
+      source_signals: action.source_signals,
+      confidence: action.confidence,
+    })
+    persisted.push({ ...action, proposal_id: proposal.id })
+  }
+  return persisted
+}
+
 export async function sendPersistentMessage(conversationId: string, content: string, horizon: 'today' | 'week' = 'today'): Promise<{ userMessage: AIMessage; assistantMessage: AIMessage; result: AssistantChatResult }> {
   if (!supabase) throw new Error('Supabase is not configured.')
   const { data: userData, error: userError } = await supabase.auth.getUser()
@@ -37,6 +60,8 @@ export async function sendPersistentMessage(conversationId: string, content: str
   if (error) throw error
   if (!data || typeof data !== 'object' || !('message' in data) || typeof data.message !== 'string') throw new Error('The AI agent returned an invalid response.')
   const result = data as AssistantChatResult
+  const proposedActions = await persistProposedActions(result.proposed_actions ?? [])
+  const persistedResult: AssistantChatResult = { ...result, proposed_actions: proposedActions }
   const { data: assistantMessage, error: assistantError } = await supabase.from('ai_messages').insert({
     conversation_id: conversationId,
     user_id: userData.user.id,
@@ -44,9 +69,9 @@ export async function sendPersistentMessage(conversationId: string, content: str
     content: result.message,
     provider: result.provider,
     model: result.model,
-    metadata: { generated_at: result.generated_at, tool_calls: result.tool_calls ?? [], proposed_actions: result.proposed_actions ?? [] },
+    metadata: { generated_at: result.generated_at, tool_calls: result.tool_calls ?? [], proposed_actions: proposedActions },
   }).select('*').single()
   if (assistantError) throw assistantError
   await supabase.rpc('touch_ai_conversation', { p_conversation_id: conversationId, p_title: content.slice(0, 80) })
-  return { userMessage: userMessage as AIMessage, assistantMessage: assistantMessage as AIMessage, result }
+  return { userMessage: userMessage as AIMessage, assistantMessage: assistantMessage as AIMessage, result: persistedResult }
 }
