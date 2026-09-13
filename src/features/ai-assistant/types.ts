@@ -33,6 +33,7 @@ export interface AgentToolCall {
 }
 
 export interface ProposedAgentAction {
+  proposal_id?: string
   action_type: string
   title: string
   description: string
