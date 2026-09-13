@@ -58,4 +58,10 @@ export interface AIContext {
   reflection: Record<string, unknown>
   evidence: Array<Record<string, unknown>>
   adaptive_plan: Record<string, unknown>
+  feedback: Record<string, unknown>
+  adaptation: {
+    days: number
+    rules: Array<Record<string, unknown>>
+    generated_at: string
+  }
 }
