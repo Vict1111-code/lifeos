@@ -4,10 +4,9 @@ import { ProtectedRoute } from './ProtectedRoute'
 import { LoginPage } from '../features/auth/LoginPage'
 import { SignupPage } from '../features/auth/SignupPage'
 import { OnboardingPage } from '../features/onboarding/OnboardingPage'
+import { HomeDashboard } from '../features/dashboard/HomeDashboard'
 
 const pages = {
-  Home: 'LifeOS home dashboard',
-  Today: 'Your highest-leverage actions for today',
   Goals: 'Goals and milestones',
   Tasks: 'Tasks and execution',
   Focus: 'Focus sessions',
@@ -40,8 +39,8 @@ export function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route element={<AppShell />}>
-            <Route path="/" element={<Page name="Home" />} />
-            <Route path="/today" element={<Page name="Today" />} />
+            <Route path="/" element={<HomeDashboard />} />
+            <Route path="/today" element={<HomeDashboard mode="today" />} />
             <Route path="/goals" element={<Page name="Goals" />} />
             <Route path="/tasks" element={<Page name="Tasks" />} />
             <Route path="/focus" element={<Page name="Focus" />} />
