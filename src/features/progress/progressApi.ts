@@ -1,10 +1,16 @@
 import { supabase } from '../../lib/supabase/client'
-import type { ProgressSnapshot, ProgressSummary } from './types'
+import type { ProgressIntelligenceData, ProgressSnapshot, ProgressSummary } from './types'
 
 export async function getProgressSummary(): Promise<ProgressSummary> {
   const { data, error } = await supabase.rpc('get_progress_summary')
   if (error) throw error
   return data as ProgressSummary
+}
+
+export async function getProgressIntelligence(): Promise<ProgressIntelligenceData> {
+  const { data, error } = await supabase.rpc('get_progress_intelligence')
+  if (error) throw error
+  return data as ProgressIntelligenceData
 }
 
 export async function getProgressTrend(days = 14): Promise<ProgressSnapshot[]> {
