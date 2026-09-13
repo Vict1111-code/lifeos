@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { CheckCircle2, Clock3, Play, RefreshCw, Target, XCircle } from 'lucide-react'
 import { cancelFocusSession, completeFocusSession, getActiveFocusSession, listFocusSessions, listFocusTargets, startFocusSession } from './focusApi'
 import type { FocusSession } from './types'
@@ -63,4 +63,4 @@ export function FocusPage() {
     <div className="mt-5 grid gap-3 sm:grid-cols-3"><Stat icon={<Clock3 size={18}/>} label="Planned" value={`${sessions.reduce((sum, s) => sum + s.planned_minutes, 0)}m`}/><Stat icon={<CheckCircle2 size={18}/>} label="Completed" value={`${sessions.filter(s => s.status === 'completed').length}`}/><Stat icon={<Target size={18}/>} label="Actual" value={`${sessions.reduce((sum, s) => sum + (s.actual_minutes ?? 0), 0)}m`}/></div>
   </section>
 }
-function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">{icon}<p className="mt-3 text-xs text-[var(--muted)]">{label}</p><p className="mt-1 text-2xl font-semibold">{value}</p></div> }
+function Stat({ icon, label, value }: { icon: ReactNode; label: string; value: string }) { return <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">{icon}<p className="mt-3 text-xs text-[var(--muted)]">{label}</p><p className="mt-1 text-2xl font-semibold">{value}</p></div> }
