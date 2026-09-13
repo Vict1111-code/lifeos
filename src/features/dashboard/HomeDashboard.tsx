@@ -16,6 +16,7 @@ import {
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../lib/auth/AuthProvider'
 import { getHomeDashboard } from './dashboardApi'
+import { AIContextPreview } from '../ai-context/AIContextPreview'
 import type { DashboardTask, HomeDashboard } from './types'
 
 function formatMinutes(minutes: number) {
@@ -170,6 +171,8 @@ export function HomeDashboard({ mode = 'home' }: { mode?: 'home' | 'today' }) {
           {dashboard.life_pulse.length ? <div className="space-y-3">{dashboard.life_pulse.map((area) => <div key={area.id} className="flex items-center gap-3"><div className="min-w-0 flex-1"><div className="mb-1 flex justify-between gap-3 text-xs"><span className="truncate font-medium">{area.name}</span><span className="text-[var(--muted)]">{Math.round(area.score)}%</span></div><div className="h-1.5 rounded-full bg-[var(--surface-2)]"><div className="h-full rounded-full bg-[var(--accent)]" style={{ width: `${Math.min(100, Math.max(0, area.score))}%` }} /></div></div><span className="text-[10px] text-[var(--muted)]">{area.active_goals} goals</span></div>)}</div> : <p className="text-sm text-[var(--muted)]">Add life areas during onboarding to see your pulse.</p>}
         </div>
       </div>
+
+      <AIContextPreview />
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-5 py-4 text-xs text-[var(--muted)]">
         <span>LifeOS uses your profile timezone to determine what counts as today.</span>
