@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { AlertTriangle, BrainCircuit, CheckCircle2, Flame, HeartPulse, ShieldCheck, Sparkles, Timer } from 'lucide-react'
 import type { ProgressIntelligenceData } from './types'
 
@@ -38,11 +39,11 @@ export function ProgressIntelligence({ data }: { data: ProgressIntelligenceData 
   )
 }
 
-function Signal({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: string; sub: string }) {
+function Signal({ icon, label, value, sub }: { icon: ReactNode; label: string; value: string; sub: string }) {
   return <article className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5"><div className="mb-4 flex items-center gap-2 text-[var(--accent)]">{icon}<span className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">{label}</span></div><p className="text-2xl font-semibold tracking-tight">{value}</p><p className="mt-1 text-xs text-[var(--muted)]">{sub}</p></article>
 }
 
-function Insight({ icon, title, tone, children }: { icon: React.ReactNode; title: string; tone: 'positive' | 'warning' | 'neutral'; children: React.ReactNode }) {
+function Insight({ icon, title, tone, children }: { icon: ReactNode; title: string; tone: 'positive' | 'warning' | 'neutral'; children: ReactNode }) {
   const toneClass = tone === 'warning' ? 'border-amber-500/20 bg-amber-500/5' : tone === 'positive' ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-[var(--border)] bg-[var(--surface)]'
   return <article className={`rounded-2xl border p-5 ${toneClass}`}><div className="mb-3 flex items-center gap-2"><span className="text-[var(--accent)]">{icon}</span><h3 className="font-semibold">{title}</h3></div><p className="text-sm leading-6 text-[var(--muted)]">{children}</p></article>
 }
