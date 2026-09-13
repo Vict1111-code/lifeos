@@ -106,3 +106,19 @@ export async function setGoalStatus(id: string, status: Goal['status']) {
   if (error) throw error
   return (await hydrate([data]))[0]
 }
+
+export async function calculateGoalHealth(id: string) {
+  await requireUserId()
+  if (!supabase) throw new Error('Supabase is not configured.')
+  const { data, error } = await supabase.rpc('calculate_goal_health', { p_goal_id: id })
+  if (error) throw error
+  return Number(data ?? 0)
+}
+
+export async function recalculateAllGoalHealth() {
+  await requireUserId()
+  if (!supabase) throw new Error('Supabase is not configured.')
+  const { data, error } = await supabase.rpc('recalculate_user_goal_health')
+  if (error) throw error
+  return Number(data ?? 0)
+}
