@@ -69,7 +69,13 @@ export async function sendPersistentMessage(conversationId: string, content: str
     content: result.message,
     provider: result.provider,
     model: result.model,
-    metadata: { generated_at: result.generated_at, tool_calls: result.tool_calls ?? [], proposed_actions: proposedActions },
+    metadata: {
+      generated_at: result.generated_at,
+      tool_calls: result.tool_calls ?? [],
+      proposed_actions: proposedActions,
+      memory_retrieval: result.memory_retrieval ?? null,
+      memories_used: result.memories_used ?? [],
+    },
   }).select('*').single()
   if (assistantError) throw assistantError
   await supabase.rpc('touch_ai_conversation', { p_conversation_id: conversationId, p_title: content.slice(0, 80) })
