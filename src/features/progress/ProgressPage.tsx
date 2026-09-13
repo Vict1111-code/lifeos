@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 import { BarChart3, RefreshCw, Target, Timer, CheckCircle2, BookOpen, Paperclip } from 'lucide-react'
 import { getProgressSummary, getProgressTrend } from './progressApi'
 import type { ProgressSnapshot, ProgressSummary } from './types'
@@ -10,45 +11,17 @@ export function ProgressPage() {
   const [trend, setTrend] = useState<ProgressSnapshot[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const [nextSummary, nextTrend] = await Promise.all([getProgressSummary(), getProgressTrend(14)])
-      setSummary(nextSummary)
-      setTrend(nextTrend)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unable to load progress.')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
+  const load = useCallback(async () => { setLoading(true); setError(null); try { const [nextSummary, nextTrend] = await Promise.all([getProgressSummary(), getProgressTrend(14)]); setSummary(nextSummary); setTrend(nextTrend) } catch (e) { setError(e instanceof Error ? e.message : 'Unable to load progress.') } finally { setLoading(false) } }, [])
   useEffect(() => { void load() }, [load])
-
   const completionRate = summary.tasks_total ? Math.round((summary.tasks_completed / summary.tasks_total) * 100) : 0
   const maxFocus = useMemo(() => Math.max(1, ...trend.map(item => item.focus_minutes)), [trend])
-
   return <section className="mx-auto max-w-6xl px-5 py-8 lg:px-10">
-    <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">Progress</p><h1 className="text-3xl font-semibold tracking-tight">Progress & evidence</h1><p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">See what you actually completed, where your time went, and whether your goals are moving.</p></div>
-      <button onClick={() => void load()} className="inline-flex items-center gap-2 self-start rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm hover:bg-[var(--surface-2)] sm:self-auto"><RefreshCw size={15} className={loading ? 'animate-spin' : ''}/>Refresh</button>
-    </header>
+    <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">Progress</p><h1 className="text-3xl font-semibold tracking-tight">Progress & evidence</h1><p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">See what you actually completed, where your time went, and whether your goals are moving.</p></div><button onClick={() => void load()} className="inline-flex items-center gap-2 self-start rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm hover:bg-[var(--surface-2)] sm:self-auto"><RefreshCw size={15} className={loading ? 'animate-spin' : ''}/>Refresh</button></header>
     {error && <div className="mb-5 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-200">{error}</div>}
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <Metric icon={<CheckCircle2 size={18}/>} label="Tasks completed" value={`${summary.tasks_completed}`} sub={`${completionRate}% of tracked tasks`} />
-      <Metric icon={<Timer size={18}/>} label="Focus time" value={`${summary.focus_minutes}m`} sub="Recorded focused work" />
-      <Metric icon={<Target size={18}/>} label="Goal progress" value={`${Math.round(summary.avg_goal_progress)}%`} sub={`${summary.active_goals} active goals`} />
-      <Metric icon={<BookOpen size={18}/>} label="Reflections" value={`${summary.journal_entries}`} sub={`${summary.evidence_count} evidence items`} />
-    </div>
-    <div className="mt-5 grid gap-5 lg:grid-cols-[1.5fr_1fr]">
-      <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5"><div className="mb-5 flex items-center justify-between"><div><h2 className="font-semibold">14-day activity</h2><p className="mt-1 text-xs text-[var(--muted)]">Completed tasks and focus minutes</p></div><BarChart3 size={18} className="text-[var(--muted)]"/></div><div className="flex h-52 items-end gap-1 sm:gap-2">{trend.map(item => <TrendBar key={item.date} item={item} maxFocus={maxFocus}/>)}</div></section>
-      <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5"><div className="mb-4 flex items-center gap-2"><Paperclip size={17} className="text-[var(--accent)]"/><h2 className="font-semibold">Evidence loop</h2></div><div className="space-y-4 text-sm"><Row label="Completed tasks" value={`${summary.tasks_completed}`} /><Row label="Focus minutes" value={`${summary.focus_minutes}`} /><Row label="Journal entries" value={`${summary.journal_entries}`} /><Row label="Evidence captured" value={`${summary.evidence_count}`} /><Row label="Average goal progress" value={`${Math.round(summary.avg_goal_progress)}%`} /></div><p className="mt-5 rounded-xl bg-[var(--surface-2)] p-3 text-xs leading-5 text-[var(--muted)]">Progress becomes useful when execution produces evidence and reflection. This page is the first reporting layer; later phases can turn these signals into adaptive AI recommendations.</p></section>
-    </div>
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><Metric icon={<CheckCircle2 size={18}/>} label="Tasks completed" value={`${summary.tasks_completed}`} sub={`${completionRate}% of tracked tasks`} /><Metric icon={<Timer size={18}/>} label="Focus time" value={`${summary.focus_minutes}m`} sub="Recorded focused work" /><Metric icon={<Target size={18}/>} label="Goal progress" value={`${Math.round(summary.avg_goal_progress)}%`} sub={`${summary.active_goals} active goals`} /><Metric icon={<BookOpen size={18}/>} label="Reflections" value={`${summary.journal_entries}`} sub={`${summary.evidence_count} evidence items`} /></div>
+    <div className="mt-5 grid gap-5 lg:grid-cols-[1.5fr_1fr]"><section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5"><div className="mb-5 flex items-center justify-between"><div><h2 className="font-semibold">14-day activity</h2><p className="mt-1 text-xs text-[var(--muted)]">Completed tasks and focus minutes</p></div><BarChart3 size={18} className="text-[var(--muted)]"/></div><div className="flex h-52 items-end gap-1 sm:gap-2">{trend.map(item => <TrendBar key={item.date} item={item} maxFocus={maxFocus}/>)}</div></section><section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5"><div className="mb-4 flex items-center gap-2"><Paperclip size={17} className="text-[var(--accent)]"/><h2 className="font-semibold">Evidence loop</h2></div><div className="space-y-4 text-sm"><Row label="Completed tasks" value={`${summary.tasks_completed}`} /><Row label="Focus minutes" value={`${summary.focus_minutes}`} /><Row label="Journal entries" value={`${summary.journal_entries}`} /><Row label="Evidence captured" value={`${summary.evidence_count}`} /><Row label="Average goal progress" value={`${Math.round(summary.avg_goal_progress)}%`} /></div><p className="mt-5 rounded-xl bg-[var(--surface-2)] p-3 text-xs leading-5 text-[var(--muted)]">Progress becomes useful when execution produces evidence and reflection. This page is the first reporting layer; later phases can turn these signals into adaptive AI recommendations.</p></section></div>
   </section>
 }
-
-function Metric({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: string; sub: string }) { return <article className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5"><div className="mb-4 flex items-center gap-2 text-[var(--accent)]">{icon}<span className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">{label}</span></div><p className="text-3xl font-semibold tracking-tight">{value}</p><p className="mt-1 text-xs text-[var(--muted)]">{sub}</p></article> }
+function Metric({ icon, label, value, sub }: { icon: ReactNode; label: string; value: string; sub: string }) { return <article className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5"><div className="mb-4 flex items-center gap-2 text-[var(--accent)]">{icon}<span className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">{label}</span></div><p className="text-3xl font-semibold tracking-tight">{value}</p><p className="mt-1 text-xs text-[var(--muted)]">{sub}</p></article> }
 function Row({ label, value }: { label: string; value: string }) { return <div className="flex items-center justify-between border-b border-[var(--border)] pb-3 last:border-0"><span className="text-[var(--muted)]">{label}</span><span className="font-semibold">{value}</span></div> }
 function TrendBar({ item, maxFocus }: { item: ProgressSnapshot; maxFocus: number }) { const date = new Date(`${item.date}T00:00:00`); const height = item.focus_minutes ? Math.max(8, (item.focus_minutes / maxFocus) * 100) : 4; return <div className="flex min-w-0 flex-1 flex-col items-center justify-end gap-2" title={`${item.date}: ${item.tasks_completed} tasks, ${item.focus_minutes} min focus`}><div className="flex h-40 w-full items-end justify-center"><div className="w-full max-w-6 rounded-t-md bg-[var(--accent)]/70" style={{ height: `${height}%` }}/></div><span className="text-[9px] text-[var(--muted)]">{date.toLocaleDateString(undefined,{weekday:'short'}).slice(0,1)}</span></div> }
