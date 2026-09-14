@@ -47,6 +47,21 @@ async function persistProposedActions(actions: ProposedAgentAction[]): Promise<P
   return persisted
 }
 
+async function getGatewayError(error: unknown): Promise<Error> {
+  if (!error) return new Error('AI gateway request failed.')
+  const candidate = error as { context?: Response; message?: string }
+  if (candidate.context instanceof Response) {
+    try {
+      const body = await candidate.context.clone().json() as { error?: string; message?: string }
+      const detail = body?.error ?? body?.message
+      if (detail) return new Error(detail)
+    } catch {
+      // Fall back to the connector error message below.
+    }
+  }
+  return new Error(candidate.message || 'AI gateway request failed.')
+}
+
 export async function sendPersistentMessage(conversationId: string, content: string, horizon: 'today' | 'week' = 'today'): Promise<{ userMessage: AIMessage; assistantMessage: AIMessage; result: AssistantChatResult }> {
   if (!supabase) throw new Error('Supabase is not configured.')
   const { data: userData, error: userError } = await supabase.auth.getUser()
@@ -57,7 +72,7 @@ export async function sendPersistentMessage(conversationId: string, content: str
   if (historyError) throw historyError
   const history = ((historyData ?? []) as AIMessage[]).filter(m => m.role === 'user' || m.role === 'assistant').map(m => ({ role: m.role, content: m.content }))
   const { data, error } = await supabase.functions.invoke('ai-gateway', { body: { mode: 'agent', message: content, history, horizon, conversation_id: conversationId } })
-  if (error) throw error
+  if (error) throw await getGatewayError(error)
   if (!data || typeof data !== 'object' || !('message' in data) || typeof data.message !== 'string') throw new Error('The AI agent returned an invalid response.')
   const result = data as AssistantChatResult
   const proposedActions = await persistProposedActions(result.proposed_actions ?? [])
